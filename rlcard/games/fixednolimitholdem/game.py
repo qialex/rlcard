@@ -61,6 +61,9 @@ class NolimitholdemGame(Game):
         """
         if self.dealer_id is None:
             self.dealer_id = self.np_random.randint(0, self.num_players)
+        else:
+            self.dealer_id = (self.dealer_id + 1) % self.num_players
+            
 
         # Initialize a dealer that can deal cards
         self.dealer = Dealer(self.np_random)
