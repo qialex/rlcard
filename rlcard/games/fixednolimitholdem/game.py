@@ -80,10 +80,16 @@ class NolimitholdemGame(Game):
         self.stage = Stage.PREFLOP
 
         # Big blind and small blind
-        s = (self.dealer_id + 1) % self.num_players
-        b = (self.dealer_id + 2) % self.num_players
+        if self.num_players == 2:
+            # In heads-up dealer posts small blind
+            s = (self.dealer_id) % self.num_players
+            b = (self.dealer_id + 1) % self.num_players
+        else: 
+            s = (self.dealer_id + 1) % self.num_players
+            b = (self.dealer_id + 2) % self.num_players
+
         self.players[b].bet(chips=self.big_blind)
-        self.players[s].bet(chips=self.small_blind)
+        self.players[s].bet(chips=self.small_blind)            
 
         # The player next to the big blind plays the first
         self.game_pointer = (b + 1) % self.num_players
