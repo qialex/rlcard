@@ -15,7 +15,7 @@ DEFAULT_GAME_CONFIG = {
         }
 
 class FixedNolimitholdemEnv(Env):
-    ''' NoLimitholdem Environment
+    ''' FixedNolimitholdem Environment
     '''
 
     def __init__(self, config):
