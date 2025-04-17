@@ -5,10 +5,10 @@ from copy import deepcopy
 from rlcard.games.limitholdem import Game
 from rlcard.games.limitholdem import PlayerStatus
 
-from rlcard.games.nolimitholdem import Dealer
-from rlcard.games.nolimitholdem import Player
-from rlcard.games.nolimitholdem import Judger
-from rlcard.games.nolimitholdem import Round, Action
+from rlcard.games.fixednolimitholdem import Dealer
+from rlcard.games.fixednolimitholdem import Player
+from rlcard.games.fixednolimitholdem import Judger
+from rlcard.games.fixednolimitholdem import Round, Action
 
 
 class Stage(Enum):
