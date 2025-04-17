@@ -5,8 +5,8 @@ from collections import OrderedDict
 
 import rlcard
 from rlcard.envs import Env
-from rlcard.games.nolimitholdem import Game
-from rlcard.games.nolimitholdem.round import Action
+from rlcard.games.fixednolimitholdem import Game
+from rlcard.games.fixednolimitholdem.round import Action
 
 DEFAULT_GAME_CONFIG = {
         'game_num_players': 2,
