@@ -20,6 +20,7 @@ def get_card_id(suit, rank):
     
     return rank_index + 13 * suit_index
 
+# get_card_from_id
 def get_card_from_id(card_id):
     """
     Get a Card object from a card ID
@@ -37,3 +38,4 @@ def get_card_from_id(card_id):
     rank_index = card_id % 13
     
     return Card(suit_list[suit_index], rank_list[rank_index])
+
