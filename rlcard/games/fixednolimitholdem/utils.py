@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Implement utils for no limit texas holdem"""
+
 def get_card_id(suit, rank):
     """
     Get the card ID based on suit and rank
