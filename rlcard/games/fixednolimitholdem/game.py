@@ -96,8 +96,14 @@ class NolimitholdemGame(Game):
         self.judger = Judger(self.np_random)
 
         # Deal cards to each player to prepare for the first round
-        for i in range(2 * self.num_players):
-            self.players[i % self.num_players].hand.append(self.dealer.deal_card())
+        for i in range(self.num_players):
+            for _ in range(2):  # Each player gets 2 cards
+                # Pass player_id to deal_card if the dealer supports it
+                if hasattr(self.dealer, 'deal_card') and 'player_id' in self.dealer.deal_card.__code__.co_varnames:
+                    card = self.dealer.deal_card(player_id=i)
+                else:
+                    card = self.dealer.deal_card()
+                self.players[i].hand.append(card)
 
         # Initialize public cards
         self.public_cards = []
@@ -349,3 +355,46 @@ class NolimitholdemGame(Game):
             state['waiting_for_cards'] = False
             
         return state
+
+    def get_payoffs(self):
+        """
+        Return the payoffs of the game
+
+        Returns:
+            (list): Each entry corresponds to the payoff of one player
+        """
+        hands = [p.hand + self.public_cards if p.status in (PlayerStatus.ALIVE, PlayerStatus.ALLIN) else None for p in self.players]
+        chips_payoffs = self.judger.judge_game(self.players, hands)
+        return chips_payoffs
+
+    def get_num_players(self):
+        """
+        Return the number of players in no limit texas holdem
+
+        Returns:
+            (int): The number of players in the game
+        """
+        return self.num_players
+
+    def step_back(self):
+        """
+        Return to the previous state of the game
+
+        Returns:
+            (bool): True if the game steps back successfully
+        """
+        if len(self.history) > 0:
+            self.round, self.game_pointer, self.round_counter, self.dealer, self.public_cards, self.players = self.history.pop()
+            self.stage = Stage(self.round_counter)
+            return True
+        return False
+
+    @staticmethod
+    def get_num_actions():
+        """
+        Return the number of applicable actions
+
+        Returns:
+            (int): The number of actions. There are 6 actions (call, raise_half_pot, raise_pot, all_in, check and fold)
+        """
+        return len(Action)

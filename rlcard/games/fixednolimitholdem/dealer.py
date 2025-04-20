@@ -11,6 +11,7 @@ class NolimitholdemDealer(Dealer):
         self.preset_river = None
         self.current_stage = None
         self.manual_mode = False  # Default to automatic dealing
+        self.player0_cards_dealt = 0  # Track how many cards have been dealt to player 0
     
     def enable_manual_mode(self):
         """Enable manual card selection mode"""
@@ -25,7 +26,7 @@ class NolimitholdemDealer(Dealer):
         if not self.manual_mode:
             return  # Do nothing if not in manual mode
             
-        self.preset_player0_hand = cards
+        self.preset_player0_hand = cards.copy()  # Make a copy to avoid modifying the original
         # Remove these cards from the deck
         for card in cards:
             if card in self.deck:
@@ -42,7 +43,7 @@ class NolimitholdemDealer(Dealer):
             
         if len(cards) != 3:
             raise ValueError("Flop must consist of exactly 3 cards")
-        self.preset_flop = cards
+        self.preset_flop = cards.copy()  # Make a copy to avoid modifying the original
         # Remove these cards from the deck
         for card in cards:
             if card in self.deck:
@@ -96,19 +97,24 @@ class NolimitholdemDealer(Dealer):
             return self.preset_river is not None
         return False
     
-    def deal_card(self):
+    def deal_card(self, player_id=None):
         """Deal a card from the deck
         
+        Args:
+            player_id (int, optional): The ID of the player to deal to
+            
         Returns:
             (object): A card object
         """
         # Only use preset cards if in manual mode
-        if self.manual_mode:
-            # For player 0's hand
-            if len(self.preset_player0_hand) > 0:
-                return self.preset_player0_hand.pop(0)
+        if self.manual_mode and player_id == 0 and self.player0_cards_dealt < 2 and len(self.preset_player0_hand) > 0:
+            # For player 0's hand (first two cards)
+            card = self.preset_player0_hand.pop(0)
+            self.player0_cards_dealt += 1
+            return card
             
-            # For community cards based on current stage
+        # For community cards based on current stage
+        if self.manual_mode:
             if self.current_stage == 'flop' and len(self.preset_flop) > 0:
                 return self.preset_flop.pop(0)
             elif self.current_stage == 'turn' and self.preset_turn is not None:
@@ -122,3 +128,9 @@ class NolimitholdemDealer(Dealer):
         
         # Default behavior - deal from deck
         return super().deal_card()
+    
+    def shuffle(self):
+        """Shuffle the deck"""
+        super().shuffle()
+        # Reset the player0_cards_dealt counter when shuffling
+        self.player0_cards_dealt = 0
