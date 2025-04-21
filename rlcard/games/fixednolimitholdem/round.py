@@ -178,6 +178,12 @@ class NolimitholdemRound:
         Returns:
             (boolean): True if the current round is over
         """
+        # If all players are either all-in or folded, the round is over
+        if self.not_playing_num >= self.num_players:
+            return True
+        
+        # If all players have checked or called, the round is over
         if self.not_raise_num + self.not_playing_num >= self.num_players:
             return True
+        
         return False
