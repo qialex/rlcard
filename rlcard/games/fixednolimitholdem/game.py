@@ -221,6 +221,11 @@ class NolimitholdemGame(Game):
         # If we're waiting for manual cards, no betting actions are allowed
         if self.stage in (Stage.WAITING_FOR_FLOP, Stage.WAITING_FOR_TURN, Stage.WAITING_FOR_RIVER):
             return []  # No betting actions allowed while waiting for cards
+        
+        # Check if all players are either folded or all-in
+        players_in_bypass = [1 if player.status in (PlayerStatus.FOLDED, PlayerStatus.ALLIN) else 0 for player in self.players]
+        if sum(players_in_bypass) == self.num_players:
+            return []  # No actions allowed when all players are all-in or folded
             
         return self.round.get_nolimit_legal_actions(players=self.players)
 
@@ -265,6 +270,33 @@ class NolimitholdemGame(Game):
             if self.round.raised[last_player] >= max(self.round.raised):
                 # If the last player has put enough chips, he is also bypassed
                 players_in_bypass[last_player] = 1
+
+        # Check if all players are either folded or all-in
+        if sum(players_in_bypass) == self.num_players:
+            # Skip all betting rounds and deal all remaining community cards
+            if self.stage == Stage.PREFLOP:
+                # Deal flop
+                self._deal_flop()
+                # Deal turn
+                self._deal_turn()
+                # Deal river
+                self._deal_river()
+                self.stage = Stage.SHOWDOWN
+                self.round_counter = 3  # Set to end of river
+            elif self.stage == Stage.FLOP:
+                # Deal turn
+                self._deal_turn()
+                # Deal river
+                self._deal_river()
+                self.stage = Stage.SHOWDOWN
+                self.round_counter = 3  # Set to end of river
+            elif self.stage == Stage.TURN:
+                # Deal river
+                self._deal_river()
+                self.stage = Stage.SHOWDOWN
+                self.round_counter = 3  # Set to end of river
+            elif self.stage == Stage.RIVER:
+                self.stage = Stage.SHOWDOWN
 
         # If a round is over, we deal more public cards
         if self.round.is_over():
